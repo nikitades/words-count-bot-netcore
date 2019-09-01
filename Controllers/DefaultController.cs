@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WordsCountBot.Database;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace WordsCountBot.Controllers
 {
@@ -14,7 +16,12 @@ namespace WordsCountBot.Controllers
         [Route("/")]
         public JsonResult Index()
         {
-            return Json("kek");
+            var words = _context.Words
+                .Where(word => word.Text == "kek")
+                .Include(words => words.Usages)
+                    .ThenInclude(usage => usage.Chat)
+                .ToList();
+            return Json(words);
         }
     }
 }
