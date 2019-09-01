@@ -14,7 +14,6 @@ namespace WordsCountBot.Controllers
         [Route("/")]
         public JsonResult Index()
         {
-            _context.Govno();
             return Json("kek");
         }
     }
