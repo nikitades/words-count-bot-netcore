@@ -16,7 +16,7 @@ namespace WordsCountBot.Repositories
             return _ctx;
         }
 
-        private UsagesRepository(WordsCountBotDbContext context)
+        public UsagesRepository(WordsCountBotDbContext context)
         {
             _ctx = context;
         }
