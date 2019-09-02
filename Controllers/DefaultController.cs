@@ -9,11 +9,11 @@ namespace WordsCountBot.Controllers
 {
     public class DefaultController : Controller
     {
-        private IWordsRepository<Word> _wordsRepo;
-        private IChatsRepository<Chat> _chatsRepo;
+        private IWordsRepository<Word, WordsCountBotDbContext> _wordsRepo;
+        private IChatsRepository<Chat, WordsCountBotDbContext> _chatsRepo;
         public DefaultController(
-            IWordsRepository<Word> wordsRepo,
-            IChatsRepository<Chat> chatsRepo
+            IWordsRepository<Word, WordsCountBotDbContext> wordsRepo,
+            IChatsRepository<Chat, WordsCountBotDbContext> chatsRepo
         )
         {
             _wordsRepo = wordsRepo;
@@ -25,7 +25,8 @@ namespace WordsCountBot.Controllers
         {
             var words = _wordsRepo.GetAll();
             var chats = _chatsRepo.GetAll();
-            return Json(new {
+            return Json(new
+            {
                 Chats = chats,
                 Words = words
             });
