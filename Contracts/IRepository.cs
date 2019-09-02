@@ -1,13 +1,16 @@
-using System.Collections.Generic;
-
-namespace Contracts
+namespace WordsCountBot.Contracts
 {
-    public interface IRepository<T>
+    public interface IRepository<TEntity> :
+        ICreateRepository<TEntity>,
+        IReadRepository<TEntity>,
+        IUpdateRepository<TEntity>,
+        IDeleteRepository<TEntity>
+            where TEntity : IModel
     {
-        ICollection<T> FindAll();
-        T Find(int i);
-        void Create(T t);
-        void Update(T t);
-        void Delete(T t);
+        /** 
+            TODO: 
+                - implement abstract full repository
+                - implement real full repository for words
+        */
     }
 }

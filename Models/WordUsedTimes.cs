@@ -1,8 +1,7 @@
 namespace WordsCountBot.Models
 {
-    public class WordUsedTimes
+    public class WordUsedTimes : Model
     {
-        public int ID { get; set; }
         public int WordID { get; set; }
         public int ChatID { get; set; }
         public int UsedTimes { get; set; }
