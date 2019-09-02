@@ -26,7 +26,7 @@ namespace WordsCountBot.Database
                 new WordUsedTimes { ChatID = 2, WordID = 3, UsedTimes = 1 },
                 new WordUsedTimes { ChatID = 3, WordID = 2, UsedTimes = 9999999 }
             };
-            context.Usage.AddRange(usages);
+            context.Usages.AddRange(usages);
 
             context.SaveChanges();
         }

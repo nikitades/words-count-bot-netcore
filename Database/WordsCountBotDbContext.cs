@@ -22,6 +22,6 @@ namespace WordsCountBot.Database
 
         public DbSet<Word> Words { get; set; }
         public DbSet<Chat> Chats { get; set; }
-        public DbSet<WordUsedTimes> Usage { get; set; }
+        public DbSet<WordUsedTimes> Usages { get; set; }
     }
 }

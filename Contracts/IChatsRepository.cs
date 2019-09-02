@@ -3,7 +3,7 @@ using WordsCountBot.Models;
 
 namespace WordsCountBot.Contracts
 {
-    public interface IWordsRepository<TEntity, TContext> : IRepository<Word, WordsCountBotDbContext>
+    public interface IChatsRepository<TEntity, TContext> : IRepository<Chat, WordsCountBotDbContext>
     {
 
     }

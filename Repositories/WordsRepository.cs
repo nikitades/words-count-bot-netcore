@@ -7,9 +7,15 @@ using WordsCountBot.Models;
 
 namespace WordsCountBot.Repositories
 {
-    public class WordsRepository : IWordsRepository<Word>
+    public class WordsRepository : IWordsRepository<Word, WordsCountBotDbContext>
     {
         private WordsCountBotDbContext _ctx;
+
+        public WordsCountBotDbContext GetContext()
+        {
+            return _ctx;
+        }
+
         public WordsRepository(WordsCountBotDbContext context)
         {
             _ctx = context;
