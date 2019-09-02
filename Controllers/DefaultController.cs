@@ -11,13 +11,16 @@ namespace WordsCountBot.Controllers
     {
         private IWordsRepository<Word, WordsCountBotDbContext> _wordsRepo;
         private IChatsRepository<Chat, WordsCountBotDbContext> _chatsRepo;
+        private IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> _usagesRepo;
         public DefaultController(
             IWordsRepository<Word, WordsCountBotDbContext> wordsRepo,
-            IChatsRepository<Chat, WordsCountBotDbContext> chatsRepo
+            IChatsRepository<Chat, WordsCountBotDbContext> chatsRepo,
+            IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> usagesRepo
         )
         {
             _wordsRepo = wordsRepo;
             _chatsRepo = chatsRepo;
+            _usagesRepo = usagesRepo;
         }
 
         [Route("/")]
@@ -25,10 +28,12 @@ namespace WordsCountBot.Controllers
         {
             var words = _wordsRepo.GetAll();
             var chats = _chatsRepo.GetAll();
+            var usages = _usagesRepo.GetAll();
             return Json(new
             {
                 Chats = chats,
-                Words = words
+                Words = words,
+                Usages = usages
             });
         }
     }
