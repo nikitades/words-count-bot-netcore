@@ -23,7 +23,11 @@ namespace WordsCountBot.Repositories
 
         public void Create(Chat c)
         {
-            _ctx.Chats.Add(c);
+            var existingChat = _ctx.Chats.Where(chat => chat.TelegramID == c.TelegramID).SingleOrDefault();
+            if (existingChat == null)
+            {
+                _ctx.Chats.Add(c);
+            }
         }
 
         public void Delete(Chat t)

@@ -64,5 +64,10 @@ namespace WordsCountBot.Repositories
         {
             _ctx.Usages.Update(wut);
         }
+
+        public void IncrementLinks(IEnumerable<Word> words, Chat chat)
+        {
+            //TODO: написать собственный инсёрт, который бы джойнил по тексту слова и вставлял чат
+        }
     }
 }

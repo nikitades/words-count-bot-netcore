@@ -26,15 +26,22 @@ namespace WordsCountBot.Controllers
         [Route("/")]
         public JsonResult Index()
         {
-            var words = _wordsRepo.GetAll();
-            var chats = _chatsRepo.GetAll();
-            var usages = _usagesRepo.GetAll();
-            return Json(new
+            var messageText = "Le petit @sobaque kek_kek pek PEK !!!";
+            var words = Word.GetWordsFromText(messageText);
+            var chat = new Chat
             {
-                Chats = chats,
-                Words = words,
-                Usages = usages
-            });
+                TelegramID = 666,
+                Name = "Some funny chat"
+            };
+            _wordsRepo.Create(words);
+            _chatsRepo.Create(chat);
+            _usagesRepo.IncrementLinks(words, chat);
+
+            _wordsRepo.GetContext().SaveChanges();
+            _chatsRepo.GetContext().SaveChanges();
+            _usagesRepo.GetContext().SaveChanges();
+
+            return Json(_usagesRepo.GetBy(usage => usage.ChatID == chat.ID).ToList());
         }
     }
 }

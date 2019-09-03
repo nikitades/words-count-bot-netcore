@@ -8,10 +8,5 @@ namespace WordsCountBot.Contracts
             where TEntity : IModel
     {
         TContext GetContext();
-        /** 
-            TODO: 
-                - implement abstract full repository
-                - implement real full repository for words
-        */
     }
 }

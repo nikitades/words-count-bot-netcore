@@ -23,7 +23,23 @@ namespace WordsCountBot.Repositories
 
         public void Create(Word w)
         {
-            _ctx.Words.Add(w);
+            throw new NotImplementedException();
+        }
+
+        public void Create(IEnumerable<string> incomingWords)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Create(IEnumerable<Word> incomingWords)
+        {
+            var existingWordsIDs = _ctx.Words
+                .Select(word => word.ID)
+                .ToList();
+            incomingWords = incomingWords
+                .Where(incomingWord => existingWordsIDs.IndexOf(incomingWord.ID) == -1)
+                .ToList();
+            _ctx.Words.AddRange(incomingWords);
         }
 
         public void Delete(Word w)
