@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WordsCountBot.Database;
@@ -9,9 +10,10 @@ using WordsCountBot.Database;
 namespace WordsCountBot.Migrations
 {
     [DbContext(typeof(WordsCountBotDbContext))]
-    partial class WordsCountBotDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190903093045_CreatedUniqueIndex")]
+    partial class CreatedUniqueIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +39,6 @@ namespace WordsCountBot.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("TelegramID")
-                        .IsUnique();
-
                     b.ToTable("Chats");
                 });
 
@@ -57,9 +56,6 @@ namespace WordsCountBot.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Text")
-                        .IsUnique();
 
                     b.ToTable("Words");
                 });

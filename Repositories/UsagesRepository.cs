@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using WordsCountBot.Contracts;
 using WordsCountBot.Database;
 using WordsCountBot.Models;
@@ -67,7 +69,34 @@ namespace WordsCountBot.Repositories
 
         public void IncrementLinks(IEnumerable<Word> words, Chat chat)
         {
-            //TODO: написать собственный инсёрт, который бы джойнил по тексту слова и вставлял чат
+            var wordsReplaces = new List<string>();
+            for (var i = 0; i < words.Count(); i++)
+            {
+                wordsReplaces.Add($"@Word{i}");
+            }
+            var inList = String.Join(", ", wordsReplaces);
+            var sqlStr = $@"INSERT INTO 
+                            public.""Usages"" (""WordID"", ""ChatID"", ""UsedTimes"")
+                            
+                            (SELECT 
+                                w.""ID"", 
+                                (SELECT c.""ID"" FROM ""Chats"" c WHERE c.""TelegramID"" = @TelegramChatID), 
+                                1 
+                                FROM ""Words"" w WHERE w.""Text"" IN (
+                                    {inList}
+                                )
+                            )
+                        ON CONFLICT (""WordID"", ""ChatID"") DO UPDATE SET ""UsedTimes"" = public.""Usages"".""UsedTimes"" + 1        
+            ";
+
+            var sqlParameters = new List<Object>();
+            sqlParameters.Add(new NpgsqlParameter("TelegramChatID", chat.TelegramID));
+            var wordsList = words.ToList();
+            for (var i = 0; i < words.Count(); i++)
+            {
+                sqlParameters.Add(new NpgsqlParameter($"@Word{i}", wordsList[i].Text));
+            }
+            _ctx.Database.ExecuteSqlRaw(sqlStr, sqlParameters);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace WordsCountBot.Models
                     Text = phrase
                 });
             }
-            return words;
+            return words.Distinct();
         }
 
         public static IEnumerable<Word> FilterWordsList(IEnumerable<Word> list)

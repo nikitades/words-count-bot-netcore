@@ -26,6 +26,7 @@ namespace WordsCountBot.Controllers
         [Route("/")]
         public JsonResult Index()
         {
+
             var messageText = "Le petit @sobaque kek_kek pek PEK !!!";
             var words = Word.GetWordsFromText(messageText);
             var chat = new Chat
@@ -34,11 +35,12 @@ namespace WordsCountBot.Controllers
                 Name = "Some funny chat"
             };
             _wordsRepo.Create(words);
-            _chatsRepo.Create(chat);
-            _usagesRepo.IncrementLinks(words, chat);
-
             _wordsRepo.GetContext().SaveChanges();
+
+            _chatsRepo.Create(chat);
             _chatsRepo.GetContext().SaveChanges();
+
+            _usagesRepo.IncrementLinks(words, chat);
             _usagesRepo.GetContext().SaveChanges();
 
             return Json(_usagesRepo.GetBy(usage => usage.ChatID == chat.ID).ToList());

@@ -33,11 +33,20 @@ namespace WordsCountBot.Repositories
 
         public void Create(IEnumerable<Word> incomingWords)
         {
-            var existingWordsIDs = _ctx.Words
-                .Select(word => word.ID)
+            var existingWords = _ctx.Words
+                .Select(word => Word.EscapeString(word.Text))
+                .ToList()
+                .Where(word => !String.IsNullOrEmpty(word))
                 .ToList();
             incomingWords = incomingWords
-                .Where(incomingWord => existingWordsIDs.IndexOf(incomingWord.ID) == -1)
+                .Select(word =>
+                {
+                    word.Text = Word.EscapeString(word.Text);
+                    return word;
+                })
+                .Where(word => !String.IsNullOrEmpty(word.Text))
+                .ToList()
+                .Where(incomingWord => existingWords.IndexOf(incomingWord.Text) == -1)
                 .ToList();
             _ctx.Words.AddRange(incomingWords);
         }

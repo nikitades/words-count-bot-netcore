@@ -7,7 +7,7 @@ namespace WordsCountBot
     V Сделать инициализацию БД
     V Сделать миграции
     V Сделать пробный селект
-    Сделать модели, прибавляющие 1 использование, assureChatAdded, assureWordAdded и проч
+    V Сделать модели, прибавляющие 1 использование, assureChatAdded, assureWordAdded и проч
     Мутить телеграм-клиент с командами
      */
     public class Program
