@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WordsCountBot.Contracts;
 using WordsCountBot.Database;
 using WordsCountBot.Extensions;
+using WordsCountBot.TelegramBot;
 
 namespace WordsCountBot
 {
@@ -21,12 +23,15 @@ namespace WordsCountBot
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
+            services
+                .AddMvc()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddDbContext<WordsCountBotDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
             );
             services.AddRepositories();
+            services.Configure<TelegramBotConfig>(Configuration.GetSection("BotConfiguration"));
+            services.AddSingleton<ITelegramBot, WordsCountBot.TelegramBot.TelegramBot>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,8 +41,6 @@ namespace WordsCountBot
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

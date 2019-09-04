@@ -26,7 +26,7 @@ namespace WordsCountBot.Controllers
         [Route("/")]
         public JsonResult Index()
         {
-
+ 
             var messageText = "Le petit @sobaque kek_kek pek PEK !!!";
             var words = Word.GetWordsFromText(messageText);
             var chat = new Chat
