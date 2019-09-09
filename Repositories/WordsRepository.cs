@@ -38,6 +38,7 @@ namespace WordsCountBot.Repositories
                 .ToList()
                 .Where(word => !String.IsNullOrEmpty(word))
                 .ToList();
+
             incomingWords = incomingWords
                 .Select(word =>
                 {
@@ -48,6 +49,7 @@ namespace WordsCountBot.Repositories
                 .ToList()
                 .Where(incomingWord => existingWords.IndexOf(incomingWord.Text) == -1)
                 .ToList();
+
             _ctx.Words.AddRange(incomingWords);
         }
 

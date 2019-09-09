@@ -76,12 +76,12 @@ namespace WordsCountBot.Repositories
             }
             var inList = String.Join(", ", wordsReplaces);
             var sqlStr = $@"INSERT INTO 
-                            public.""Usages"" (""WordID"", ""ChatID"", ""UsedTimes"")
+                            public.""Usages"" (""WordID"", ""ChatID"", ""UsedTimes"", ""CreatedAt"")
                             
                             (SELECT 
                                 w.""ID"", 
                                 (SELECT c.""ID"" FROM ""Chats"" c WHERE c.""TelegramID"" = @TelegramChatID), 
-                                1 
+                                1, @CurTime 
                                 FROM ""Words"" w WHERE w.""Text"" IN (
                                     {inList}
                                 )
@@ -90,6 +90,7 @@ namespace WordsCountBot.Repositories
             ";
 
             var sqlParameters = new List<Object>();
+            sqlParameters.Add(new NpgsqlParameter("CurTime", DateTime.Now));
             sqlParameters.Add(new NpgsqlParameter("TelegramChatID", chat.TelegramID));
             var wordsList = words.ToList();
             for (var i = 0; i < words.Count(); i++)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -23,7 +24,8 @@ namespace WordsCountBot.Models
             var words = new List<Word>();
             foreach (var phrase in text.Split(" ")) {
                 words.Add(new Word {
-                    Text = phrase
+                    Text = phrase,
+                    CreatedAt = DateTime.Now
                 });
             }
             return words.Distinct();

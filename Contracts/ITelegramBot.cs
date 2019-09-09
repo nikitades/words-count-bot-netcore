@@ -5,5 +5,6 @@ namespace WordsCountBot.Contracts
     public interface ITelegramBot
     {
         public void HandleUpdate(Update update);
+        public void SetWebhook();
     }
 }

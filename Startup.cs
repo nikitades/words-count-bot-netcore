@@ -40,7 +40,7 @@ namespace WordsCountBot
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
+            } 
 
             app.UseRouting();
 
