@@ -16,19 +16,22 @@ namespace WordsCountBot.Models
                 Regex.Replace(input, @"[^A-Za-zА-Яа-я-_]", " "),
                 @"\W{2,}",
                 " "
-            ).Trim();
+            ).Trim().ToLower();
         }
 
         public static IEnumerable<Word> GetWordsFromText(string text)
         {
             var words = new List<Word>();
-            foreach (var phrase in text.Split(" ")) {
-                words.Add(new Word {
+            var wordParts = text.Split(" ").Distinct();
+            foreach (var phrase in wordParts)
+            {
+                words.Add(new Word
+                {
                     Text = phrase,
                     CreatedAt = DateTime.Now
                 });
             }
-            return words.Distinct();
+            return words;
         }
 
         public static IEnumerable<Word> FilterWordsList(IEnumerable<Word> list)

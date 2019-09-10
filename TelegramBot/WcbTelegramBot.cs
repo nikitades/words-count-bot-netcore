@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -11,34 +13,32 @@ using MyChat = WordsCountBot.Models.Chat;
 
 namespace WordsCountBot.TelegramBot
 {
-    public class TelegramBot : ITelegramBot
+    public class WcbTelegramBot : ITelegramBot
     {
-        private TelegramBotClient _client;
-        private ILogger<TelegramBot> _logger;
+        private WcbTelegramClient _client;
+        private ILogger<WcbTelegramBot> _logger;
         private IWordsRepository<Word, WordsCountBotDbContext> _wordsRepo;
         private IChatsRepository<MyChat, WordsCountBotDbContext> _chatsRepo;
         private IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> _usagesRepo;
-        private IOptions<TelegramBotConfig> _options;
 
-        public TelegramBot(
-            IOptions<TelegramBotConfig> options,
-            ILogger<TelegramBot> logger,
+        public WcbTelegramBot(
+            ILogger<WcbTelegramBot> logger,
             IWordsRepository<Word, WordsCountBotDbContext> wordsRepo,
             IChatsRepository<MyChat, WordsCountBotDbContext> chatsRepo,
-            IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> usagesRepo
+            IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> usagesRepo,
+            WcbTelegramClient client
         )
         {
             _logger = logger;
             _wordsRepo = wordsRepo;
             _chatsRepo = chatsRepo;
             _usagesRepo = usagesRepo;
-            _options = options;
-            _client = new TelegramBotClient(_options.Value.BotToken);
+            _client = client;
         }
 
         public void SetWebhook()
         {
-            _client.SetWebhookAsync(_options.Value.WebhookUrl);
+            _client.SetWebhookAsync();
         }
 
         public void HandleUpdate(Update update)
@@ -86,7 +86,6 @@ namespace WordsCountBot.TelegramBot
             var words = Word.GetWordsFromText(text);
 
             _chatsRepo.Create(chat);
-            // _chatsRepo.GetContext().SaveChanges();
             _wordsRepo.Create(words);
             _wordsRepo.GetContext().SaveChanges();
             _usagesRepo.IncrementLinks(words, chat);
@@ -95,6 +94,49 @@ namespace WordsCountBot.TelegramBot
 
         private void handleCountMessage(Update update)
         {
+            var text = update.Message.Text.Substring(("/count".Length)).Trim();
+            text = Word.EscapeString(text);
+
+            IEnumerable<Word> sourceWords = Word.GetWordsFromText(text).Take(3);
+            IEnumerable<Word> words;
+            IEnumerable<WordUsedTimes> usages;
+
+            if (String.IsNullOrEmpty(text))
+            {
+                usages = _usagesRepo.GetByTelegramIdTopWords(update.Message.Chat.Id, 3);
+                words = _wordsRepo.GetByID(usages.Select(usage => usage.WordID));
+
+                _client.SendTextMessageAsync(
+                    update.Message.Chat.Id,
+                    String.Join("\n", words.Select(word => $"<b>{word.Text}</b>: {usages.Where(usage => usage.WordID == word.ID).First().UsedTimes}")),
+                    ParseMode.Html
+                );
+            }
+            else
+            {
+                words = _wordsRepo.GetByText(sourceWords.Select(word => word.Text).ToList());
+                usages = _usagesRepo.GetByTelegramIdAndWordsList(update.Message.Chat.Id, words.Select(word => word.Text));
+
+                var responseText = new List<string>();
+                foreach (var sourceWord in sourceWords)
+                {
+                    var foundWord = words.Where(word => word.Text == sourceWord.Text).FirstOrDefault();
+                    if (foundWord == null)
+                    {
+                        responseText.Add($"<b>{sourceWord.Text}</b>: not found");
+                        continue;
+                    }
+                    var foundWordUsage = usages.Where(usage => usage.WordID == foundWord.ID).First();
+                    responseText.Add($"<b>{sourceWord.Text}</b>: {foundWordUsage.UsedTimes}");
+                }
+
+                _client.SendTextMessageAsync(
+                    update.Message.Chat.Id,
+                    String.Join("\n", responseText),
+                    ParseMode.Html
+                );
+            }
+
 
         }
     }

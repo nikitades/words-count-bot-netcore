@@ -8,5 +8,7 @@ namespace WordsCountBot.Contracts
     {
         void Create(IEnumerable<string> incomingWords);
         void Create(IEnumerable<Word> incomingWords);
+        IEnumerable<Word> GetByText(IEnumerable<string> sourceWords);
+        IEnumerable<Word> GetByID(IEnumerable<int> IDs);
     }
 }

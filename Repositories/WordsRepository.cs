@@ -90,6 +90,16 @@ namespace WordsCountBot.Repositories
             return _ctx.Words.Where(predicate).ToList();
         }
 
+        public IEnumerable<Word> GetByID(IEnumerable<int> IDs)
+        {
+            return _ctx.Words.Where(word => IDs.Contains(word.ID)).ToList();
+        }
+
+        public IEnumerable<Word> GetByText(IEnumerable<string> sourceWords)
+        {
+            return _ctx.Words.Where(word => sourceWords.Contains(word.Text)).ToList();
+        }
+
         public Word GetOne(int ID)
         {
             return _ctx.Words.Where(word => word.ID == ID).SingleOrDefault();

@@ -99,5 +99,45 @@ namespace WordsCountBot.Repositories
             }
             _ctx.Database.ExecuteSqlRaw(sqlStr, sqlParameters);
         }
+
+        public IEnumerable<WordUsedTimes> GetByTelegramIdAndWordsList(long telegramId, IEnumerable<string> wordsList)
+        {
+            if (wordsList.Count() == 0)
+            {
+                return new List<WordUsedTimes>();
+            }
+            var wordsReplaces = wordsList.Select((word, i) => $"@WordRep{i}").ToList();
+            var sqlParameters = wordsList.Select((word, i) => new NpgsqlParameter($"WordRep{i}", word)).ToList();
+            sqlParameters.Add(new NpgsqlParameter("ChatTelegramId", telegramId));
+
+            var usages = _ctx.Usages
+                .FromSqlRaw($@"SELECT u.*
+                    FROM public.""Usages"" u
+                        LEFT JOIN public.""Chats"" c ON c.""ID"" = u.""ChatID""
+                        LEFT JOIN public.""Words"" w ON w.""ID"" = u.""WordID""
+                        WHERE c.""TelegramID"" = @ChatTelegramId
+                        AND w.""Text"" IN ({String.Join(", ", wordsReplaces)})",
+                        sqlParameters.ToArray());
+            return usages.ToList();
+        }
+
+        public IEnumerable<WordUsedTimes> GetByTelegramIdTopWords(long telegramId, int limit)
+        {
+            var sqlParameters = new NpgsqlParameter[]{
+                new NpgsqlParameter("ChatTelegramId", telegramId),
+                new NpgsqlParameter("Limit", limit)
+            };
+
+            var usages = _ctx.Usages
+                .FromSqlRaw($@"SELECT u.*
+                    FROM public.""Usages"" u
+                        LEFT JOIN public.""Chats"" c ON c.""ID"" = u.""ChatID""
+                        LEFT JOIN public.""Words"" w ON w.""ID"" = u.""WordID""
+                        WHERE c.""TelegramID"" = @ChatTelegramId
+                        ORDER BY u.""UsedTimes"" DESC
+                        LIMIT @Limit
+                ", sqlParameters.ToArray());
+            return usages.ToList();
+        }
     }
 }
