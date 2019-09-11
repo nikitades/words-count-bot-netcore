@@ -1,7 +1,7 @@
-appsettings.Local.json
-appsettings.Migration.json
-Dockerfile
-.git
-.gitignore
-.vscode
-.circleci
+TelegramBot/appsettings.Local.json
+TelegramBot/appsettings.Migration.json
+TelegramBot/Dockerfile
+TelegramBot/.git
+TelegramBot/.gitignore
+TelegramBot/.vscode
+TelegramBot/.circleci
