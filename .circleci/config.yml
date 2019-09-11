@@ -46,14 +46,11 @@ jobs:
           docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
   migrate:
     docker:
-      - image: circleci/php:7.3.8-buster
+      - image: mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0.0-rc1-alpine3.10
     steps:
       - attach_workspace:
           at: .
-      - run: sudo -E docker-php-ext-install mysqli pdo pdo_mysql
-      - run: sed -i.bak "s/${MYSQL_HOST}/${MYSQL_REMOTE_HOST}/g" .env
-      - run: composer dump-env $APP_MODE
-      - run: bin/console doctrine:migration:migrate --no-interaction
+      - run: dotnet ef database update
   restart_image:
     docker:
       - image: circleci/buildpack-deps:buster
@@ -78,9 +75,10 @@ workflows:
           filters:
             branches:
               only: master
-      # - migrate:
-      #     requires:
-      #       - restore
+      - migrate:
+          requires:
+            - restore
       - restart_image:
           requires:
             - build_image
+            - migrate
