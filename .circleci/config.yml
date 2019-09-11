@@ -16,6 +16,8 @@ jobs:
     steps:
       - checkout
       - run: cd TelegramBot
+      - run: pwd
+      - run: ls -la
       - restore_cache:
           keys:
             - wcbot-{{ checksum "WordsCountBot.csproj" }}
