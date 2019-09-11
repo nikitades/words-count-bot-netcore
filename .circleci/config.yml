@@ -42,7 +42,7 @@ jobs:
       - run: |
           docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_SHA1 .
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_SHA1
+          docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
   migrate:
     docker:
       - image: circleci/php:7.3.8-buster
