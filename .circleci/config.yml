@@ -1,0 +1,95 @@
+version: 2
+jobs:
+  # test:
+  #   docker:
+  #     - image: circleci/php:7.3.8-buster
+  #   steps:
+  #     - attach_workspace:
+  #         at: .
+  #     - run: sudo -E docker-php-ext-install mysqli pdo pdo_mysql
+  #     - run: sed -i.bak "s/${MYSQL_HOST}/${MYSQL_REMOTE_HOST}/g" .env
+  #     - run: composer dump-env test
+  #     - run: bin/phpunit
+  restore:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - wcbot-{{ checksum "WordsCountBot.csproj" }}
+            - wcbot-
+      - run: sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
+      - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
+      - run: sed -i.bak "s/_WEBHOOK_URL_/${WEBHOOK_URL}/g" appsettings.json
+      - run: dotnet restore
+      - save_cache:
+          key: wcbot-{{ checksum "WordsCountBot.csproj" }}
+          paths:
+            - ./bin
+            - ./obj
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  build_image:
+    docker:
+      - image: circleci/buildpack-deps:buster
+    steps:
+      - attach_workspace:
+          at: .
+      - setup_remote_docker
+      - run: docker build -t $DOCKER_IMAGE_NAME:latest .
+  push_image:
+    docker:
+      - image: kek:kek
+    steps:
+      - setup_remote_docker
+      - run: |
+          echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker push $IMAGE_NAME:latest
+  migrate:
+    docker:
+      - image: circleci/php:7.3.8-buster
+    steps:
+      - attach_workspace:
+          at: .
+      - run: sudo -E docker-php-ext-install mysqli pdo pdo_mysql
+      - run: sed -i.bak "s/${MYSQL_HOST}/${MYSQL_REMOTE_HOST}/g" .env
+      - run: composer dump-env $APP_MODE
+      - run: bin/console doctrine:migration:migrate --no-interaction
+  restart_image:
+    docker:
+      - image: circleci/buildpack-deps:buster
+    steps:
+      - attach_workspace:
+          at: .
+      - run: sed -i.bak "s/{_HTTP_PORT_}/${HTTP_PORT}/g" docker-compose.prod.yml
+      - run: sudo apt update && sudo apt install rsync
+      - run:
+          name: Deploying
+          command: |
+            rsync \
+                -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+                -rzvI \
+                docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
+      - run: ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose down && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d"
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      # - test
+      - restore
+      - build_image:
+          requires:
+            - restore
+      - push_image:
+          requires:
+            - build_image
+      # - migrate:
+      #     requires:
+      #       - restore
+      # - restart_image:
+      #     requires:
+      #       - push_image

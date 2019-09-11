@@ -1,0 +1,6 @@
+appsettings.Local.json
+Dockerfile
+.git
+.gitignore
+.vscode
+.circleci
