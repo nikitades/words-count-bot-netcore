@@ -15,11 +15,11 @@ jobs:
       - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
     steps:
       - checkout
+      - run: cd TelegramBot
       - restore_cache:
           keys:
             - wcbot-{{ checksum "WordsCountBot.csproj" }}
             - wcbot-
-      - run: cd TelegramBot
       - run: sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
       - run: sed -i.bak "s/_MIGRATION_DEFAULT_CONNECTION_/${MIGRATION_DEFAULT_CONNECTION}/g" appsettings.Migration.json
       - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
