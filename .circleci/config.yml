@@ -13,7 +13,7 @@ jobs:
   restore:
     docker:
       - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
-    working_directory: TelegramBot
+    working_directory: ./TelegramBot
     steps:
       - checkout
       - restore_cache:
