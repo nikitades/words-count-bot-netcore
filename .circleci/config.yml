@@ -14,20 +14,17 @@ jobs:
     docker:
       - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
     steps:
-      - working_directory: ./TelegramBot
       - checkout
-      - run: ls -la
-      - run: ls -la ./TelegramBot
       - restore_cache:
           keys:
-            - wcbot-{{ checksum "WordsCountBot.csproj" }}
+            - wcbot-{{ checksum "TelegramBot/WordsCountBot.csproj" }}
             - wcbot-
-      - run: sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
-      - run: sed -i.bak "s/_MIGRATION_DEFAULT_CONNECTION_/${MIGRATION_DEFAULT_CONNECTION}/g" appsettings.Migration.json
-      - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
-      - run: sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
-      - run: ls -la
-      - run: dotnet restore
+      - run: |
+          sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
+          sed -i.bak "s/_MIGRATION_DEFAULT_CONNECTION_/${MIGRATION_DEFAULT_CONNECTION}/g" appsettings.Migration.json
+          sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
+          sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
+          dotnet restore
       - save_cache:
           key: wcbot-{{ checksum "WordsCountBot.csproj" }}
           paths:
