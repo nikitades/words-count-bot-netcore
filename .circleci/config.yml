@@ -42,7 +42,7 @@ jobs:
       - run: docker build -t $DOCKER_IMAGE_NAME:latest .
   push_image:
     docker:
-      - image: kek:kek
+      - image: circleci/buildpack-deps:buster
     steps:
       - setup_remote_docker
       - run: |
