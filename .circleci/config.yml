@@ -39,15 +39,10 @@ jobs:
       - attach_workspace:
           at: .
       - setup_remote_docker
-      - run: docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest .
-  push_image:
-    docker:
-      - image: circleci/buildpack-deps:buster
-    steps:
-      - setup_remote_docker
       - run: |
+          docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH .
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest
+          docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH
   migrate:
     docker:
       - image: circleci/php:7.3.8-buster
@@ -84,9 +79,6 @@ workflows:
       - build_image:
           requires:
             - restore
-      - push_image:
-          requires:
-            - build_image
       # - migrate:
       #     requires:
       #       - restore
