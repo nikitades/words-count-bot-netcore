@@ -47,7 +47,7 @@ jobs:
       - setup_remote_docker
       - run: |
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          docker push $IMAGE_NAME:latest
+          docker push $DOCKER_IMAGE_NAME:latest
   migrate:
     docker:
       - image: circleci/php:7.3.8-buster
