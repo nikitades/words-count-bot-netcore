@@ -23,6 +23,8 @@ jobs:
       - run: sed -i.bak "s/_MIGRATION_DEFAULT_CONNECTION_/${MIGRATION_DEFAULT_CONNECTION}/g" appsettings.Migration.json
       - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
       - run: sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
+      - run: cat appsettings.json
+      - run: ls -la
       - run: dotnet restore
       - save_cache:
           key: wcbot-{{ checksum "WordsCountBot.csproj" }}
