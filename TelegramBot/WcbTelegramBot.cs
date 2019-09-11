@@ -90,7 +90,6 @@ namespace WordsCountBot.TelegramBot
             _wordsRepo.Create(words);
             _wordsRepo.GetContext().SaveChanges();
             _usagesRepo.IncrementLinks(words, chat);
-            _usagesRepo.GetContext().SaveChanges();
         }
 
         private void handleCountMessage(Update update)
