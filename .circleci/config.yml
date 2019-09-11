@@ -20,7 +20,7 @@ jobs:
             - wcbot-{{ checksum "WordsCountBot.csproj" }}
             - wcbot-
       - run: sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
-      - run: sed -i.bak "s/_MIGRATIONS_DEFAULT_CONNECTION_/${MIGRATIONS_DEFAULT_CONNECTION}/g" appsettings.Migration.json
+      - run: sed -i.bak "s/_MIGRATION_DEFAULT_CONNECTION_/${MIGRATION_DEFAULT_CONNECTION}/g" appsettings.Migration.json
       - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
       - run: sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
       - run: dotnet restore
@@ -51,7 +51,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: cat appsettings.json
+      - run: cat appsettings.Migration.json
       - run: PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet tool install -g dotnet-ef --version 3.0.0-preview8.19405.11
       - run: PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet ef database update
   restart_image:
