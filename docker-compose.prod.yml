@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  wcbot:
+    image: _DOCKER_IMAGE_
+    user: "${UID}:${GID}"
+    restart: always
+    ports:
+      - _HTTP_PORT_:80

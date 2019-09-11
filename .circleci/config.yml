@@ -60,6 +60,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: sed -i.bak "s/{_HTTP_PORT_}/${HTTP_PORT}/g" docker-compose.prod.yml
+      - run: sed -i.bak "s#{_DOCKER_IMAGE_}#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
       - run: sudo apt update && sudo apt install rsync
       - run:
           name: Deploying
@@ -85,6 +86,6 @@ workflows:
       # - migrate:
       #     requires:
       #       - restore
-      # - restart_image:
-      #     requires:
-      #       - push_image
+      - restart_image:
+          requires:
+            - push_image
