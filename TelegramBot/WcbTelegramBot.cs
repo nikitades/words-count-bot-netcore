@@ -86,6 +86,7 @@ namespace WordsCountBot.TelegramBot
             var words = Word.GetWordsFromText(text);
 
             _chatsRepo.Create(chat);
+            _chatsRepo.GetContext().SaveChanges();
             _wordsRepo.Create(words);
             _wordsRepo.GetContext().SaveChanges();
             _usagesRepo.IncrementLinks(words, chat);
