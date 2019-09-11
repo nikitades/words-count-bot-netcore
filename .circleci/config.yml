@@ -46,7 +46,7 @@ jobs:
           docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
   migrate:
     docker:
-      - image: mcr.microsoft.com/dotnet/core-nightly/runtime:3.0.100-rc1-alpine3.10
+      - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
     steps:
       - attach_workspace:
           at: .
