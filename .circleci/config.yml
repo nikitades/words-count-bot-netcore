@@ -39,7 +39,7 @@ jobs:
       - attach_workspace:
           at: .
       - setup_remote_docker
-      - run: docker build -t $DOCKERHUB_USER_NAME/$DOCKER_IMAGE_NAME:latest .
+      - run: docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest .
   push_image:
     docker:
       - image: circleci/buildpack-deps:buster
