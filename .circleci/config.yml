@@ -44,7 +44,6 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: |
-          cd TelegramBot
           docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1 .
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
