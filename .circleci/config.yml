@@ -13,11 +13,9 @@ jobs:
   restore:
     docker:
       - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
+    working_directory: TelegramBot
     steps:
       - checkout
-      - run: cd TelegramBot
-      - run: pwd
-      - run: ls -la
       - restore_cache:
           keys:
             - wcbot-{{ checksum "WordsCountBot.csproj" }}
@@ -45,8 +43,8 @@ jobs:
           at: .
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: cd TelegramBot
       - run: |
+          cd TelegramBot
           docker build -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:latest -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH -t $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1 .
           echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           docker push $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME
@@ -56,21 +54,23 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: cd TelegramBot
-      - run: PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet tool install -g dotnet-ef --version 3.0.0-preview8.19405.11
-      - run: PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet ef database update
+      - run: |
+          cd TelegramBot
+          PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet tool install -g dotnet-ef --version 3.0.0-preview8.19405.11
+          PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet ef database update
   restart_image:
     docker:
       - image: circleci/buildpack-deps:buster
     steps:
       - attach_workspace:
           at: .
-      - run: cd TelegramBot
-      - run: sed -i.bak "s/_HTTP_PORT_/${HTTP_PORT}/g" docker-compose.prod.yml
-      - run: sed -i.bak "s#_DOCKER_IMAGE_#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
-      - run: scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"  docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
-      - run: ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && pwd && ls -la"
-      - run: ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml down && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d"
+      - run: |
+          cd TelegramBot
+          sed -i.bak "s/_HTTP_PORT_/${HTTP_PORT}/g" docker-compose.prod.yml
+          sed -i.bak "s#_DOCKER_IMAGE_#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
+          scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"  docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
+          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && pwd && ls -la"
+          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml down && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d"
 
 workflows:
   version: 2
