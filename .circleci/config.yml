@@ -21,7 +21,7 @@ jobs:
             - wcbot-
       - run: sed -i.bak "s/_DEFAULT_CONNECTION_/${DEFAULT_CONNECTION}/g" appsettings.json
       - run: sed -i.bak "s/_TOKEN_/${TOKEN}/g" appsettings.json
-      - run: sed -i.bak "s/_WEBHOOK_URL_/${WEBHOOK_URL}/g" appsettings.json
+      - run: sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
       - run: dotnet restore
       - save_cache:
           key: wcbot-{{ checksum "WordsCountBot.csproj" }}
