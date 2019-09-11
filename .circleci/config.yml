@@ -50,6 +50,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: PATH=$PATH:/root/.dotnet/tools
       - run: dotnet tool install -g dotnet-ef
       - run: dotnet ef database update
   restart_image:
