@@ -50,7 +50,6 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: cat appsettings.json
       - run: PATH=$PATH:/root/.dotnet/tools dotnet tool install -g dotnet-ef --version 3.0.0-preview8.19405.11
       - run: PATH=$PATH:/root/.dotnet/tools dotnet ef database update
   restart_image:
