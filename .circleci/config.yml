@@ -88,4 +88,4 @@ workflows:
       #       - restore
       - restart_image:
           requires:
-            - push_image
+            - build_image
