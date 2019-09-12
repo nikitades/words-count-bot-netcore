@@ -33,7 +33,7 @@ namespace WordsCountBot.Models
                 {
                     Text = phrase,
                     CreatedAt = DateTime.Now,
-                    TooShort = phrase.Length < 4
+                    TooShort = phrase.Length < 3
                 });
             }
             return words;
