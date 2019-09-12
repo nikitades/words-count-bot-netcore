@@ -1,15 +1,5 @@
 version: 2
 jobs:
-  # test:
-  #   docker:
-  #     - image: circleci/php:7.3.8-buster
-  #   steps:
-  #     - attach_workspace:
-  #         at: .
-  #     - run: sudo -E docker-php-ext-install mysqli pdo pdo_mysql
-  #     - run: sed -i.bak "s/${MYSQL_HOST}/${MYSQL_REMOTE_HOST}/g" .env
-  #     - run: composer dump-env test
-  #     - run: bin/phpunit
   restore:
     docker:
       - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
@@ -37,6 +27,16 @@ jobs:
           root: .
           paths:
             - .
+  test:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          cd TelegramBot.Tests
+          dotnet restore
+          dotnet test
   build_image:
     docker:
       - image: circleci/buildpack-deps:buster
@@ -85,21 +85,21 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      # - test
       - restore
+      - test
       - build_image:
           requires:
-            - restore
+            - test
           filters:
             branches:
               only: master
       - stop_image:
           requires:
-            - restore
+            - test
             - build_image
       - migrate:
           requires:
-            - restore
+            - test
             - stop_image
       - start_image:
           requires:
