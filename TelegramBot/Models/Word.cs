@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,9 @@ namespace WordsCountBot.Models
     {
         public string Text { get; set; }
         public IList<WordUsedTimes> Usages { get; set; }
+
+        [NotMapped]
+        public bool TooShort { get; set; }
 
         public static string EscapeString(string input)
         {
@@ -28,15 +32,11 @@ namespace WordsCountBot.Models
                 words.Add(new Word
                 {
                     Text = phrase,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    TooShort = phrase.Length < 4
                 });
             }
             return words;
-        }
-
-        public static IEnumerable<Word> FilterWordsList(IEnumerable<Word> list)
-        {
-            return list.Where(word => word.Text.Length > 3).ToList();
         }
     }
 }

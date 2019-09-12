@@ -83,7 +83,7 @@ namespace WordsCountBot.TelegramBot
                 TelegramID = update.Message.Chat.Id
             };
             var text = Word.EscapeString(update.Message.Text);
-            var words = Word.GetWordsFromText(text);
+            var words = Word.GetWordsFromText(text).Where(word => !word.TooShort).ToList();
 
             _chatsRepo.Create(chat);
             _chatsRepo.GetContext().SaveChanges();
@@ -97,7 +97,6 @@ namespace WordsCountBot.TelegramBot
             var text = update.Message.Text.Substring(("/count".Length)).Trim();
             text = Word.EscapeString(text);
 
-            IEnumerable<Word> sourceWords = Word.GetWordsFromText(text).Take(3);
             IEnumerable<Word> words;
             IEnumerable<WordUsedTimes> usages;
 
@@ -114,12 +113,18 @@ namespace WordsCountBot.TelegramBot
             }
             else
             {
+                IEnumerable<Word> sourceWords = Word.GetWordsFromText(text).Take(3);
                 words = _wordsRepo.GetByText(sourceWords.Select(word => word.Text).ToList());
                 usages = _usagesRepo.GetByTelegramIdAndWordsList(update.Message.Chat.Id, words.Select(word => word.Text));
 
                 var responseText = new List<string>();
                 foreach (var sourceWord in sourceWords)
                 {
+                    if (sourceWord.TooShort)
+                    {
+                        responseText.Add($"<b>{sourceWord.Text}</b>: too short");
+                        continue;
+                    }
                     var foundWord = words.Where(word => word.Text == sourceWord.Text).FirstOrDefault();
                     if (foundWord == null)
                     {
