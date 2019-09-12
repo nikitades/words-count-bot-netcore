@@ -20,11 +20,6 @@ jobs:
             - wcbot-{{ checksum "TelegramBot/WordsCountBot.csproj" }}
             - wcbot-
       - run: |
-          ##docker-compose replaces
-          sed -i.bak "s/_HTTP_PORT_/${HTTP_PORT}/g" docker-compose.prod.yml
-          sed -i.bak "s#_DOCKER_IMAGE_#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
-          ##send the docker-compose file to the remote hosting (as soon as it's hosted at a single server, not cluster)
-          scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"  docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
           ##change the directory from the solution folder to project
           cd TelegramBot
           ##appsettings & appsettings.Migration replaces
@@ -70,7 +65,14 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml down"
+      - run: |
+          ##stop currently working image
+          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml down"
+          ##docker-compose replaces
+          sed -i.bak "s/_HTTP_PORT_/${HTTP_PORT}/g" docker-compose.prod.yml
+          sed -i.bak "s#_DOCKER_IMAGE_#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
+          ##send the docker-compose file to the remote hosting (as soon as it's hosted at a single server, not cluster)
+          scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"  docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
   start_image:
     docker:
       - image: circleci/buildpack-deps:buster
