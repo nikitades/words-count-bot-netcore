@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -15,7 +16,7 @@ namespace WordsCountBot.TelegramBot
 {
     public class WcbTelegramBot : ITelegramBot
     {
-        private WcbTelegramClient _client;
+        private IWcbTelegramClient _client;
         private ILogger<WcbTelegramBot> _logger;
         private IWordsRepository<Word, WordsCountBotDbContext> _wordsRepo;
         private IChatsRepository<MyChat, WordsCountBotDbContext> _chatsRepo;
@@ -26,7 +27,7 @@ namespace WordsCountBot.TelegramBot
             IWordsRepository<Word, WordsCountBotDbContext> wordsRepo,
             IChatsRepository<MyChat, WordsCountBotDbContext> chatsRepo,
             IUsagesRepository<WordUsedTimes, WordsCountBotDbContext> usagesRepo,
-            WcbTelegramClient client
+            IWcbTelegramClient client
         )
         {
             _logger = logger;
@@ -41,18 +42,18 @@ namespace WordsCountBot.TelegramBot
             _client.SetWebhookAsync();
         }
 
-        public void HandleUpdate(Update update)
+        public IWcbTelegramBotAction HandleUpdate(Update update)
         {
             if (update.Message == null || update.Message.Text == null)
             {
                 _logger.LogDebug($"Received an empty message");
-                return;
+                return null;
             }
 
             if (update.Type != UpdateType.Message)
             {
                 _logger.LogDebug($"Ignoring the message of type {update.Type} from chat {update.Message.Chat.Id} ({update.Message.Chat.Title})");
-                return;
+                return null;
             }
 
             if (!Array.Exists(new[]{
@@ -61,21 +62,21 @@ namespace WordsCountBot.TelegramBot
             }, type => type == update.Message.Chat.Type))
             {
                 _logger.LogDebug($"Ingoring message from wrong chat type ({update.Message.Chat.Type}) from chat {update.Message.Chat.Id} ({update.Message.Chat.Title})");
-                return;
+                return null;
             };
             _logger.LogDebug($"New message from chat {update.Message.Chat.Title} ({update.Message.Chat.Title})");
 
             if (update.Message.Text.StartsWith("/count"))
             {
-                handleCountMessage(update);
+                return handleCountMessage(update);
             }
             else
             {
-                handleGenericMessage(update);
+                return handleGenericMessage(update);
             }
         }
 
-        private void handleGenericMessage(Update update)
+        private IWcbTelegramBotAction handleGenericMessage(Update update)
         {
             var chat = new MyChat
             {
@@ -90,9 +91,11 @@ namespace WordsCountBot.TelegramBot
             _wordsRepo.Create(words);
             _wordsRepo.GetContext().SaveChanges();
             _usagesRepo.IncrementLinks(words, chat);
+
+            return null;
         }
 
-        private void handleCountMessage(Update update)
+        private IWcbTelegramBotAction handleCountMessage(Update update)
         {
             var text = update.Message.Text.Substring(("/count".Length)).Trim();
             text = Word.EscapeString(text);
@@ -105,11 +108,13 @@ namespace WordsCountBot.TelegramBot
                 usages = _usagesRepo.GetByTelegramIdTopWords(update.Message.Chat.Id, 3);
                 words = _wordsRepo.GetByID(usages.Select(usage => usage.WordID));
 
-                _client.SendTextMessageAsync(
-                    update.Message.Chat.Id,
-                    String.Join("\n", words.Select(word => $"<b>{word.Text}</b>: {usages.Where(usage => usage.WordID == word.ID).First().UsedTimes}")),
-                    ParseMode.Html
-                );
+                return new WcbTelegramBotAction
+                {
+                    Type = WcbActionType.Text,
+                    ChatID = update.Message.Chat.Id,
+                    Text = String.Join("\n", words.Select(word => $"<b>{word.Text}</b>: {usages.Where(usage => usage.WordID == word.ID).First().UsedTimes}")),
+                    Mode = ParseMode.Html
+                };
             }
             else
             {
@@ -135,14 +140,26 @@ namespace WordsCountBot.TelegramBot
                     responseText.Add($"<b>{sourceWord.Text}</b>: {foundWordUsage.UsedTimes}");
                 }
 
-                _client.SendTextMessageAsync(
-                    update.Message.Chat.Id,
-                    String.Join("\n", responseText),
-                    ParseMode.Html
-                );
+                return new WcbTelegramBotAction
+                {
+                    Type = WcbActionType.Text,
+                    ChatID = update.Message.Chat.Id,
+                    Text = String.Join("\n", responseText),
+                    Mode = ParseMode.Html
+                };
             }
+        }
 
-
+        public Task<Message> ProcessAction(IWcbTelegramBotAction action)
+        {
+            switch (action.Type)
+            {
+                case WcbActionType.Text:
+                    return _client.SendTextMessageAsync(action.ChatID, action.Text, action.Mode);
+                case WcbActionType.Image:
+                    throw new NotImplementedException();
+            }
+            throw new ArgumentOutOfRangeException("Unknown action type given");
         }
     }
 }

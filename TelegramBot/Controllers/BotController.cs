@@ -17,7 +17,8 @@ namespace WordsCountBot.Controllers
         [HttpPost("handler")]
         public IActionResult Handle([FromBody]Update update)
         {
-            _bot.HandleUpdate(update);
+            var botAction = _bot.HandleUpdate(update);
+            _bot.ProcessAction(botAction);
             return Ok("ok");
         }
 

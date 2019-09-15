@@ -24,6 +24,9 @@ namespace WordsCountBot
         V сделать обработку слишком коротких слов
         V говорить когда переданное на подсчет слово слишком коротко
         - тесты
+            - отделить создание сообщения на отправку от самой отправки (HandleUpdate должен стать public)
+            - протестить случай countCommand
+            - протестить случай genericMessageCommand
      */
     public class Program
     {
