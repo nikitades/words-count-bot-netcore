@@ -120,6 +120,7 @@ namespace WordsCountBot.TelegramBot
             {
                 IEnumerable<Word> sourceWords = Word.GetWordsFromText(text).Take(3);
                 words = _wordsRepo.GetByText(sourceWords.Select(word => word.Text).ToList());
+                //TODO: вот тут words пустые, хотя я мокаю этот метод на возврат list<words>
                 usages = _usagesRepo.GetByTelegramIdAndWordsList(update.Message.Chat.Id, words.Select(word => word.Text));
 
                 var responseText = new List<string>();
