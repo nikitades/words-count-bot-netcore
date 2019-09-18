@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -27,6 +28,18 @@ namespace TestTelegramBot
         {
             Text = "kekTwoUsages",
             ID = 222
+        };
+
+        Word _wordWithFourUsagesInCurrentChat = new Word
+        {
+            Text = "kekFourUsages",
+            ID = 223
+        };
+
+        Word _wordWithFifteenUsagesInCurrentChat = new Word
+        {
+            Text = "kekPlentyOfUsages",
+            ID = 224
         };
 
         Word _tooShortWord = new Word
@@ -85,14 +98,18 @@ namespace TestTelegramBot
         {
             var fakeWordsRepo = new Mock<IWordsRepository<Word, WordsCountBotDbContext>>();
             fakeWordsRepo.Setup(repo => repo.GetByText(new List<string>() {
-                _wordWithTwoUsagesInCurrentChat.Text.ToLower()
+                _wordWithTwoUsagesInCurrentChat.Text.ToLower() //Database contains lower case words only
             })).Returns(new List<Word>() {
                 _wordWithTwoUsagesInCurrentChat
-            });
+            }.Select(word =>
+            {
+                word.Text = word.Text.ToLower(); //Database contains lower case words only
+                return word;
+            }));
 
             var fakeUsagesRepo = new Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>>();
             fakeUsagesRepo.Setup(repo => repo.GetByTelegramIdAndWordsList(_currentChat.TelegramID, new List<string>() {
-                _wordWithTwoUsagesInCurrentChat.Text
+                _wordWithTwoUsagesInCurrentChat.Text.ToLower() //It is lowercased inside the handleCountMessage method
             })).Returns(new List<WordUsedTimes>() {
                 new WordUsedTimes {
                     WordID = _wordWithTwoUsagesInCurrentChat.ID,
@@ -105,9 +122,9 @@ namespace TestTelegramBot
                 wordsRepo: fakeWordsRepo,
                 usagesRepo: fakeUsagesRepo
             );
-            var update = createUpdate(_currentChat.ID, $"/count {_wordWithTwoUsagesInCurrentChat.Text}", ChatType.Group);
+            var update = createUpdate(_currentChat.TelegramID, $"/count {_wordWithTwoUsagesInCurrentChat.Text}", ChatType.Group);
             var action = bot.HandleUpdate(update);
-            
+
             Assert.Equal($"<b>{_wordWithTwoUsagesInCurrentChat.Text.ToLower()}</b>: 2", action.Text);
         }
 
@@ -117,7 +134,7 @@ namespace TestTelegramBot
             var bot = createMockedClient();
             var channelUpdate = createUpdate(_currentChat.ID, $"/count {_wordWithNoUsagesInCurrentChat.Text}", ChatType.Channel);
             var action = bot.HandleUpdate(channelUpdate);
-            Assert.Equal(null, action);
+            Assert.Null(action);
         }
 
         [Fact]
@@ -126,7 +143,7 @@ namespace TestTelegramBot
             var bot = createMockedClient();
             var channelUpdate = createUpdate(_currentChat.ID, $"/count {_wordWithNoUsagesInCurrentChat.Text}", ChatType.Private);
             var action = bot.HandleUpdate(channelUpdate);
-            Assert.Equal(null, action);
+            Assert.Null(action);
         }
 
         [Fact]
@@ -150,13 +167,76 @@ namespace TestTelegramBot
         [Fact]
         public void TestCountCommandWithNoWordsGiven()
         {
+            var fakeUsagesRepo = new Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>>();
+            fakeUsagesRepo
+                .Setup(repo => repo.GetByTelegramIdTopWords(_currentChat.ID, 3))
+                .Returns(new List<WordUsedTimes>(){
+                    new WordUsedTimes { WordID = _wordWithTwoUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 2 },
+                    new WordUsedTimes { WordID = _wordWithFourUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 4 },
+                    new WordUsedTimes { WordID = _wordWithFifteenUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 15 }
+                });
 
+            var fakeWordsRepo = new Mock<IWordsRepository<Word, WordsCountBotDbContext>>();
+            fakeWordsRepo
+                .Setup(repo => repo.GetByID(new int[]{
+                    _wordWithTwoUsagesInCurrentChat.ID,
+                    _wordWithFourUsagesInCurrentChat.ID,
+                    _wordWithFifteenUsagesInCurrentChat.ID
+                }))
+                .Returns(new List<Word>() {
+                    _wordWithFifteenUsagesInCurrentChat,
+                    _wordWithFourUsagesInCurrentChat,
+                    _wordWithTwoUsagesInCurrentChat
+                });
+
+            var bot = createMockedClient(
+                usagesRepo: fakeUsagesRepo,
+                wordsRepo: fakeWordsRepo
+            );
+
+            var update = createUpdate(_currentChat.ID, $"/count", ChatType.Supergroup);
+            var action = bot.HandleUpdate(update);
+            var awaitedText = String.Join("\n", new string[]{
+                $"<b>{_wordWithFifteenUsagesInCurrentChat.Text}</b>: 15",
+                $"<b>{_wordWithFourUsagesInCurrentChat.Text}</b>: 4",
+                $"<b>{_wordWithTwoUsagesInCurrentChat.Text}</b>: 2",
+            });
+            Assert.Equal(awaitedText, action.Text);
         }
 
         [Fact]
         public void TestCountCommandWithFourWordsGiven()
         {
+            var fakeUsagesRepo = new Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>>();
+            fakeUsagesRepo
+                .Setup(repo => repo.GetByTelegramIdTopWords(_currentChat.ID, 3))
+                .Returns(new List<WordUsedTimes>(){
+                    new WordUsedTimes { WordID = _wordWithTwoUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 2 },
+                    new WordUsedTimes { WordID = _wordWithFourUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 4 },
+                    new WordUsedTimes { WordID = _wordWithFifteenUsagesInCurrentChat.ID, ChatID = _currentChat.ID, UsedTimes = 15 }
+                });
 
+            var fakeWordsRepo = new Mock<IWordsRepository<Word, WordsCountBotDbContext>>();
+            fakeWordsRepo
+                .Setup(repo => repo.GetByID(new int[]{
+                    _wordWithTwoUsagesInCurrentChat.ID,
+                    _wordWithFourUsagesInCurrentChat.ID,
+                    _wordWithFifteenUsagesInCurrentChat.ID
+                }))
+                .Returns(new List<Word>() {
+                    _wordWithFifteenUsagesInCurrentChat,
+                    _wordWithFourUsagesInCurrentChat,
+                    _wordWithTwoUsagesInCurrentChat
+                });
+
+            var bot = createMockedClient(
+                usagesRepo: fakeUsagesRepo,
+                wordsRepo: fakeWordsRepo
+            );
+        
+            var update = createUpdate(_currentChat.ID, $"/count {_wordWithFifteenUsagesInCurrentChat.Text} {_wordWithFourUsagesInCurrentChat.Text} {_wordWithTwoUsagesInCurrentChat.Text} {_wordWithNoUsagesInCurrentChat.Text}", ChatType.Group);
+            var action = bot.HandleUpdate(update);
+            Assert.Equal(3, action.Text.Split("\n").Length);
         }
 
         [Fact]
@@ -167,57 +247,5 @@ namespace TestTelegramBot
             var action = bot.HandleUpdate(update);
             Assert.Equal($"<b>{_tooShortWord.Text}</b>: too short", action.Text);
         }
-
-        // var fakeWordsRepo = new Mock<IWordsRepository<Word, WordsCountBotDbContext>>();
-
-        // fakeWordsRepo.Setup(repo => repo.GetByText(new List<string>{
-        //     wordWithNoUsagesInCurrentChat.Text
-        // })).Returns(new List<Word>());
-
-        // fakeWordsRepo.Setup(repo => repo.GetByText(new List<string>{
-        //     wordWithTwoUsagesInCurrentChat.Text
-        // })).Returns(new List<Word> {
-        //     wordWithTwoUsagesInCurrentChat
-        // });
-
-        // var fakeUsagesRepo = new Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>>();
-
-        // fakeUsagesRepo.Setup(repo => repo.GetByTelegramIdAndWordsList(currentChat.TelegramID, new List<string> {
-        //     wordWithTwoUsagesInCurrentChat.Text
-        // })).Returns(new List<WordUsedTimes> {
-        //     new WordUsedTimes {
-        //         WordID = wordWithTwoUsagesInCurrentChat.ID,
-        //         ChatID = currentChat.ID
-        //     }
-        // });
-
-        // var bot = createMockedClient(
-        //     wordsRepo: fakeWordsRepo
-        // );
-
-        // var update = createUpdate(currentChat.TelegramID, "/count kek", ChatType.Group);
-        // var action = bot.HandleUpdate(update);
-        // Assert.Equal("<b>kek</b>: not found", action.Text);
-
-        // update = createUpdate(currentChat.TelegramID, "/count kek", ChatType.Private);
-        // action = bot.HandleUpdate(update);
-        // Assert.Equal(action, null);
-
-        // update = createUpdate(currentChat.TelegramID, "/count kek", ChatType.Channel);
-        // action = bot.HandleUpdate(update);
-        // Assert.Equal(action, null);
-
-        // update = createUpdate(currentChat.TelegramID, "/count kek2", ChatType.Group);
-        // action = bot.HandleUpdate(update);
-        // Assert.Equal(action.Text, "<b>kek2</b>: 2"); //TODO: ожидать тут 2х использований
-
-        /**
-        TODO: заимплементить остальные тестовые случаи
-            - слишком короткое слово
-            - слово найдено
-            - передано четыре слова в команде, в ответе должно быть три
-        */
-        // }
-
     }
 }
