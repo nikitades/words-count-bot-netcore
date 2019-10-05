@@ -34,7 +34,7 @@ namespace WordsCountBot
             services.AddRepositories();
             services.Configure<WcbTelegramBotConfig>(Configuration.GetSection("BotConfiguration"));
             services.AddTransient<ITelegramBot, WcbTelegramBot>();
-            services.AddSingleton<WcbTelegramClient>();
+            services.AddSingleton<IWcbTelegramClient, WcbTelegramClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
