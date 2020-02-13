@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/TelegramBot.Core/bin/Debug/netcoreapp3.0/TelegramBot.Core.dll",
+            "program": "${workspaceFolder}/TelegramBot.Core/bin/Debug/netcoreapp3.1/TelegramBot.Core.dll",
             "args": [],
             "cwd": "${workspaceFolder}/TelegramBot.Core",
             "stopAtEntry": false,
