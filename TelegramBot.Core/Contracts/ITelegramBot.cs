@@ -5,8 +5,8 @@ namespace TelegramBot.Core.Contracts
 {
     public interface ITelegramBot
     {
-        public IWcbTelegramBotAction HandleUpdate(Update update);
-        public Task<Message> ProcessAction(IWcbTelegramBotAction action);
-        public void SetWebhookAsync();
+        IWcbTelegramBotAction HandleUpdate(Update update);
+        Task<Message> ProcessAction(IWcbTelegramBotAction action);
+        void SetWebhookAsync();
     }
 }

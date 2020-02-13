@@ -1,4 +1,6 @@
 .vscode
+.idea
 bin
 obj
 appsettings.Local.json
+.DS_Store

@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace TelegramBot.Cli.Commands
 {
-    interface ICommand
+    public interface ICommand
     {
-        Task Execute();
+        Task<ICommandResult> Execute();
     }
 }

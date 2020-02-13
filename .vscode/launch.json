@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/TelegramBot/bin/Debug/netcoreapp3.0/WordsCountBot.dll",
+            "program": "${workspaceFolder}/TelegramBot.Core/bin/Debug/netcoreapp3.0/TelegramBot.Core.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/TelegramBot.Core",
             "stopAtEntry": false,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Local"

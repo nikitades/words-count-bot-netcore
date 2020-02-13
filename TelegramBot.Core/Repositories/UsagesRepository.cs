@@ -35,7 +35,7 @@ namespace TelegramBot.Core.Repositories
 
         public void Delete(int ID)
         {
-            var wut = _ctx.Usages.Where(wut => wut.ID == ID).SingleOrDefault();
+            var wut = _ctx.Usages.Where(_wut => _wut.ID == ID).SingleOrDefault();
             if (wut != null)
             {
                 _ctx.Usages.Remove(wut);

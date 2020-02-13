@@ -62,7 +62,7 @@ namespace TelegramBot.Core.Repositories
 
         public void Delete(int ID)
         {
-            var word = _ctx.Words.Where(word => word.ID == ID).SingleOrDefault();
+            var word = _ctx.Words.Where(_word => _word.ID == ID).SingleOrDefault();
             if (word != null)
             {
                 _ctx.Words.Remove(word);
