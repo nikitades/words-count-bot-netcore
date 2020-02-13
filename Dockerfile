@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-rc1-alpine3.10 AS build-env
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.101-alpine AS build-env
 WORKDIR /image
 
 COPY ./TelegramBot.Core/*.csproj ./
