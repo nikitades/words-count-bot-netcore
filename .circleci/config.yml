@@ -34,8 +34,7 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          cd TelegramBot.Tests
-          dotnet restore
+          dotnet build
           dotnet test
   build_image:
     docker:
