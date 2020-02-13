@@ -7,7 +7,7 @@ RUN dotnet restore
 COPY ./TelegramBot.Core/* ./
 RUN dotnet publish -c Release -o out
 
-FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0.0-rc1-alpine3.10
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.101-alpine
 WORKDIR /image
 COPY --from=build-env /image/out .
 ENTRYPOINT [ "dotnet", "TelegramBot.Core.dll" ]

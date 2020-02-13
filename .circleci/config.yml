@@ -56,29 +56,19 @@ jobs:
           at: .
       - run: |
           cd TelegramBot.Core
-          PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet tool install -g dotnet-ef --version 3.0.0-preview8.19405.11
+          PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet tool install -g dotnet-ef --version 3.1.101
           PATH=$PATH:/root/.dotnet/tools ASPNETCORE_ENVIRONMENT=Migration dotnet ef database update
-  stop_image:
+  restart_image:
     docker:
-      - image: circleci/buildpack-deps:buster
+      - image: circleci/buildpack-deps:stretch
     steps:
       - attach_workspace:
           at: .
       - run: |
-          ##stop currently working image
-          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml down"
-          ##docker-compose replaces
-          sed -i.bak "s/_HTTP_PORT_/${HTTP_PORT}/g" docker-compose.prod.yml
-          sed -i.bak "s#_DOCKER_IMAGE_#$DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1#g" docker-compose.prod.yml
-          ##send the docker-compose file to the remote hosting (as soon as it's hosted at a single server, not cluster)
-          scp -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"  docker-compose.prod.yml $REMOTE_USERNAME@$REMOTE_HOST:$REMOTE_PATH
-  start_image:
-    docker:
-      - image: circleci/buildpack-deps:buster
-    steps:
-      - attach_workspace:
-          at: .
-      - run: ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "cd ${REMOTE_PATH} && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d"
+          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "docker images | grep $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME" >> images.txt
+          cat images.txt | awk '{print $3}' >> filtered_images.txt
+          ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "docker service update --image $DOCKERHUB_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_BRANCH-$CIRCLE_SHA1 $SERVICE_NAME"
+          xargs < filtered_images.txt -n 1 ssh -o "StrictHostKeyChecking=no" $REMOTE_USERNAME@$REMOTE_HOST "docker rmi --force $1"
 
 workflows:
   version: 2
@@ -97,15 +87,11 @@ workflows:
           filters:
             branches:
               only: master
-      - stop_image:
+      - restart_image:
           requires:
             - test
             - build_image
       - migrate:
           requires:
             - test
-            - stop_image
-      - start_image:
-          requires:
-            - build_image
-            - migrate
+            - restart_image
