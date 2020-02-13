@@ -10,4 +10,4 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/core-nightly/aspnet:3.0.0-rc1-alpine3.10
 WORKDIR /image
 COPY --from=build-env /image/out .
-ENTRYPOINT [ "dotnet", "WordsCountBot.dll" ]
+ENTRYPOINT [ "dotnet", "TelegramBot.Core.dll" ]

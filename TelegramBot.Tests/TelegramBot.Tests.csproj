@@ -11,6 +11,6 @@
     <PackageReference Include="Moq" Version="4.13.0"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TelegramBot\WordsCountBot.csproj"/>
+    <ProjectReference Include="..\TelegramBot.Core\TelegramBot.Core.csproj"/>
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - wcbot-{{ checksum "TelegramBot/WordsCountBot.csproj" }}
+            - wcbot-{{ checksum "TelegramBot/TelegramBot.Core.csproj" }}
             - wcbot-
       - run: |
           ##change the directory from the solution folder to project
@@ -19,7 +19,7 @@ jobs:
           sed -i.bak "s#_WEBHOOK_URL_#${WEBHOOK_URL}#g" appsettings.json ##specific delimiter
           dotnet restore
       - save_cache:
-          key: wcbot-{{ checksum "TelegramBot/WordsCountBot.csproj" }}
+          key: wcbot-{{ checksum "TelegramBot/TelegramBot.Core.csproj" }}
           paths:
             - ./bin
             - ./obj

@@ -7,11 +7,11 @@ using Moq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using WordsCountBot.Contracts;
-using WordsCountBot.Database;
-using WordsCountBot.Models;
-using WordsCountBot.Repositories;
-using WordsCountBot.TelegramBot;
+using TelegramBot.Core.Contracts;
+using TelegramBot.Core.Database;
+using TelegramBot.Core.Models;
+using TelegramBot.Core.Repositories;
+using TelegramBot.Core.TelegramBot;
 using Xunit;
 
 namespace TestTelegramBot
@@ -48,7 +48,7 @@ namespace TestTelegramBot
             ID = 220
         };
 
-        WordsCountBot.Models.Chat _currentChat = new WordsCountBot.Models.Chat
+        TelegramBot.Core.Models.Chat _currentChat = new TelegramBot.Core.Models.Chat
         {
             ID = 333,
             TelegramID = -3456
@@ -57,14 +57,14 @@ namespace TestTelegramBot
         private WcbTelegramBot createMockedClient(
             Mock<ILogger<WcbTelegramBot>> logger = null,
             Mock<IWordsRepository<Word, WordsCountBotDbContext>> wordsRepo = null,
-            Mock<IChatsRepository<WordsCountBot.Models.Chat, WordsCountBotDbContext>> chatsRepo = null,
+            Mock<IChatsRepository<TelegramBot.Core.Models.Chat, WordsCountBotDbContext>> chatsRepo = null,
             Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>> usagesRepo = null,
             Mock<IWcbTelegramClient> client = null
         )
         {
             var _logger = logger ?? new Mock<ILogger<WcbTelegramBot>>();
             var _wordsRepo = wordsRepo ?? new Mock<IWordsRepository<Word, WordsCountBotDbContext>>();
-            var _chatsRepo = chatsRepo ?? new Mock<IChatsRepository<WordsCountBot.Models.Chat, WordsCountBotDbContext>>();
+            var _chatsRepo = chatsRepo ?? new Mock<IChatsRepository<TelegramBot.Core.Models.Chat, WordsCountBotDbContext>>();
             var _usagesRepo = usagesRepo ?? new Mock<IUsagesRepository<WordUsedTimes, WordsCountBotDbContext>>();
             var _client = client ?? new Mock<IWcbTelegramClient>();
             var tgBot = new WcbTelegramBot(

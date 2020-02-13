@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordsCountBot", "TelegramBot\WordsCountBot.csproj", "{C28B8BDB-8198-4304-823A-F9B902D8AF12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Core", "TelegramBot.Core\TelegramBot.Core.csproj", "{C28B8BDB-8198-4304-823A-F9B902D8AF12}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Tests", "TelegramBot.Tests\TelegramBot.Tests.csproj", "{6DD997C4-AFDF-45F8-9065-6AF25BC93D14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.Cli", "TelegramBot.Cli\TelegramBot.Cli.csproj", "{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,5 +46,17 @@ Global
 		{6DD997C4-AFDF-45F8-9065-6AF25BC93D14}.Release|x64.Build.0 = Release|Any CPU
 		{6DD997C4-AFDF-45F8-9065-6AF25BC93D14}.Release|x86.ActiveCfg = Release|Any CPU
 		{6DD997C4-AFDF-45F8-9065-6AF25BC93D14}.Release|x86.Build.0 = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|x64.Build.0 = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Debug|x86.Build.0 = Debug|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|x64.ActiveCfg = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|x64.Build.0 = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|x86.ActiveCfg = Release|Any CPU
+		{BCBCB952-205C-4EB2-BAEE-D7D29047CE1E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
