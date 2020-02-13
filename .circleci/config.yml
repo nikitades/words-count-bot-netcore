@@ -94,4 +94,3 @@ workflows:
       - migrate:
           requires:
             - test
-            - restart_image
